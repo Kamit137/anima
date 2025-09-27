@@ -12,8 +12,8 @@ func Reg(email, password string) string {
 		fmt.Println("err", err)
 	}
 	defer db.Close()
-	fmt.Println("ДБ УСПЕШНО ПОДКЛЮЧЕНА")
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, password TEXT)")
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, password TEXT, save JSON)")
 	var liveEmail bool
 	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)", email).Scan(&liveEmail)
 	if err != nil {
@@ -26,19 +26,16 @@ func Reg(email, password string) string {
 	if err != nil {
 		fmt.Println("err", err)
 	}
-	if err != nil {
-		log.Fatal("Ошибка вставки данных:", err)
-	}
+
 	return "ok"
 }
 
-func login(email, password string) string {
+func Login(email, password string) string {
 	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
 	if err != nil {
 		fmt.Println("err", err)
 	}
 	defer db.Close()
-	fmt.Println("ДБ УСПЕШНО ПОДКЛЮЧЕНА")
 	var dbpas string
 	err = db.QueryRow("SELECT password FROM user WHERE email=$1)", email).Scan(&dbpas)
 	if err != nil {
@@ -50,6 +47,31 @@ func login(email, password string) string {
 	return "ok"
 }
 
-func WriteJsonInDb(jsfile struct{}) string {
+func WriteJsonDb(jsonData *sql.DB, email string) {
+	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
+	if err != nil {
+		fmt.Println("err", err)
+	}
+	defer db.Close()
 
+	_, err = db.Exec("UPDATE users SET save = $1 WHERE email = $2", jsonData, email)
+	if err != nil {
+		fmt.Println("err", err)
+	}
+
+}
+
+func ReadJsonDb(email string) string {
+	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
+	if err != nil {
+		fmt.Println("err", err)
+	}
+	defer db.Close()
+	var page string
+	err = db.QueryRow("SELECT save FROM users WHERE email = $1", email).Scan(&page)
+	if err != nil {
+		fmt.Println("err", err)
+	}
+
+	return page
 }
