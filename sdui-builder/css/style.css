@@ -212,8 +212,28 @@ body {
     height: 100%;
     background: #f8f9fa;
     position: relative;
-    overflow-y: auto; /* Вертикальный скролл внутри экрана */
-    overflow-x: hidden;
+    overflow-y: auto; /* ← ВЕРТИКАЛЬНЫЙ СКРОЛЛ */
+    overflow-x: hidden; /* ← Запрещаем горизонтальный */
+    scrollbar-width: thin;
+    scrollbar-color: #3498db #f0f0f0;
+}
+
+.mobile-screen::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mobile-screen::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.mobile-screen::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 3px;
+}
+
+.mobile-screen::-webkit-scrollbar-thumb:hover {
+    background: #2980b9;
 }
 
 /* Controls for zoom and scroll */

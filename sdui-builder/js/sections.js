@@ -74,7 +74,7 @@ class SectionManager {
             marginBottom: 10,
             marginLeft: 15,    
             marginRight: 15,   
-            padding: 10
+            padding: 12,       
         };
         
         this.sections = [defaultSection];
@@ -94,9 +94,9 @@ class SectionManager {
             rows: 1,
             gap: 8,
             height: 120,
-            marginTop: 10,
-            marginBottom: 10,
-            padding: 10
+            marginLeft: 15,    
+            marginRight: 15,   
+            padding: 12,       
         };
 
         this.sections.push(newSection);
@@ -169,7 +169,7 @@ class SectionManager {
         
         // Ширина экрана телефона (375px - стандарт)
         const screenWidth = 375;
-        let currentY = 0;
+        let currentY = 20; // ← ДОБАВЛЯЕМ начальный отступ сверху
 
         this.sections.forEach((section, index) => {
             const sectionEl = document.createElement('div');
@@ -182,60 +182,43 @@ class SectionManager {
             sectionEl.style.width = sectionWidth + 'px';
             sectionEl.style.padding = section.padding + 'px';
             sectionEl.style.top = currentY + 'px';
-            sectionEl.style.left = section.marginLeft + 'px'; // Отступ слева
+            sectionEl.style.left = section.marginLeft + 'px';
             sectionEl.style.position = 'absolute';
             sectionEl.style.boxSizing = 'border-box';
-            sectionEl.style.overflow = 'hidden'; // Скрываем переполнение
+            sectionEl.style.overflow = 'visible'; // ← МЕНЯЕМ на visible
 
             // Отступ сверху между секциями
             if (index > 0) {
                 currentY += section.marginTop;
             }
 
-            // Контейнер для содержимого с горизонтальным скроллом
-            const contentContainer = document.createElement('div');
-            contentContainer.className = 'section-content-container';
-            contentContainer.style.width = '100%';
-            contentContainer.style.height = '100%';
-            contentContainer.style.overflowX = 'auto'; // Горизонтальный скролл
-            contentContainer.style.overflowY = 'hidden';
-
-            // Сетка
+            // Сетка (БЕЗ дополнительного контейнера для скролла)
             const gridOverlay = document.createElement('div');
             gridOverlay.className = 'section-grid-overlay';
             gridOverlay.style.width = '100%';
             gridOverlay.style.height = '100%';
             gridOverlay.style.position = 'relative';
-            gridOverlay.style.minWidth = '100%'; // Для горизонтального скролла
             
             this.renderMatrixGrid(gridOverlay, section, sectionWidth - (section.padding * 2));
             
-            contentContainer.appendChild(gridOverlay);
-            sectionEl.appendChild(contentContainer);
+            sectionEl.appendChild(gridOverlay);
             container.appendChild(sectionEl);
             
             currentY += section.height + section.marginBottom;
         });
 
-        container.style.height = currentY + 'px';
+        // Увеличиваем высоту контейнера для вертикального скролла
+        container.style.height = (currentY + 20) + 'px'; // + отступ снизу
     }
 
     renderMatrixGrid(container, section, availableWidth) {
-        // availableWidth теперь передается извне (уже с учетом отступов)
         const availableHeight = section.height - (section.padding * 2);
         
-        console.log('Grid available space:', availableWidth, 'x', availableHeight);
-
-        // Минимальная ширина ячейки для горизонтального скролла
-        const minCellWidth = 80; // Минимум 80px для ячейки
-        const requiredWidth = section.columns * minCellWidth + (section.gap * (section.columns - 1));
-        
-        const actualAvailableWidth = Math.max(availableWidth, requiredWidth);
-        const cellWidth = (actualAvailableWidth - (section.gap * (section.columns - 1))) / section.columns;
+        // Простой расчет без горизонтального скролла
+        const cellWidth = (availableWidth - (section.gap * (section.columns - 1))) / section.columns;
         const cellHeight = (availableHeight - (section.gap * (section.rows - 1))) / section.rows;
 
-        // Устанавливаем минимальную ширину для контейнера сетки
-        container.style.minWidth = requiredWidth + 'px';
+        console.log('Cell size:', cellWidth, 'x', cellHeight);
 
         for (let row = 0; row < section.rows; row++) {
             for (let col = 0; col < section.columns; col++) {
@@ -250,7 +233,10 @@ class SectionManager {
                 cell.style.left = x + 'px';
                 cell.style.top = y + 'px';
                 cell.style.position = 'absolute';
-                cell.style.minWidth = minCellWidth + 'px'; // Минимальная ширина
+                cell.style.display = 'flex';
+                cell.style.alignItems = 'center';
+                cell.style.justifyContent = 'center';
+                cell.style.fontSize = '10px';
 
                 cell.textContent = `${col + 1}-${row + 1}`;
                 container.appendChild(cell);
@@ -285,25 +271,21 @@ class SectionManager {
         if (section) {
             console.log('Updating section:', updates);
             
-            // Сохраняем старые значения для сравнения
-            const oldColumns = section.columns;
-            const oldRows = section.rows;
-            
-            // Обновляем параметры
-            Object.assign(section, updates);
-            
-            // Если изменились колонки или ряды - пересчитываем высоту
-            if ((updates.gridColumns && updates.gridColumns !== oldColumns) || 
-                (updates.gridRows && updates.gridRows !== oldRows)) {
-                // Автоподбор высоты based on rows
-                section.height = Math.max(120, section.rows * 60); // Минимум 120px, +60px за ряд
+            // Валидация значений
+            if (updates.marginLeft !== undefined) {
+                updates.marginLeft = Math.max(0, Math.min(50, updates.marginLeft));
+            }
+            if (updates.marginRight !== undefined) {
+                updates.marginRight = Math.max(0, Math.min(50, updates.marginRight));
+            }
+            if (updates.padding !== undefined) {
+                updates.padding = Math.max(0, Math.min(30, updates.padding));
             }
             
+            Object.assign(section, updates);
             this.updateSettingsPanel();
             this.renderGridSections();
             this.renderSectionsList();
-        } else {
-            console.error('Active section not found!');
         }
     }
 
