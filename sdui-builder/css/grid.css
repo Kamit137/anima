@@ -1,0 +1,375 @@
+/* Grid Overlay */
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+#gridOverlay {
+    position: relative;
+    width: 100%;
+    min-height: 100px;
+}
+
+.grid-cell {
+    position: absolute;
+    background: rgba(52, 152, 219, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #3498db;
+}
+
+/* Grid Types */
+.grid-columns .grid-cell {
+    border-right: 1px dashed rgba(52, 152, 219, 0.4);
+}
+
+.grid-columns .grid-cell:last-child {
+    border-right: none;
+}
+
+.grid-rows .grid-cell {
+    border-bottom: 1px dashed rgba(52, 152, 219, 0.4);
+}
+
+.grid-rows .grid-cell:last-child {
+    border-bottom: none;
+}
+
+.grid-matrix .grid-cell {
+    border: 1px dashed rgba(52, 152, 219, 0.4);
+}
+
+.grid-cell.highlight {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: #2ecc71 !important;
+}
+
+/* Components Area */
+.components-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.components-area > * {
+    pointer-events: all;
+}
+
+/* Grid Settings */
+.grid-settings-panel {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: auto;
+}
+
+.grid-type-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.grid-type-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.grid-type-option:hover {
+    background: #e9ecef;
+}
+
+.grid-type-option input[type="radio"] {
+    margin: 0;
+}
+
+.grid-config {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.config-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.config-group label {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.config-group input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.config-group input[type="range"] {
+    flex: 1;
+    margin: 0 10px;
+}
+
+#gapValue {
+    width: 30px;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* Секции */
+.sections-panel {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.section-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #3498db;
+    color: #3498db;
+}
+
+.btn-outline:hover {
+    background: #3498db;
+    color: white;
+}
+
+.sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.section-item {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.section-item:hover {
+    border-color: #3498db;
+    transform: translateY(-1px);
+}
+
+.section-item.active {
+    border-color: #3498db;
+    background: #e3f2fd;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.section-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.section-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.section-config {
+    font-size: 11px;
+    color: #7f8c8d;
+}
+
+/* Секции с четкими границами */
+.grid-section {
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.grid-section.active {
+    border-color: #3498db;
+    background: rgba(52, 152, 219, 0.05);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+
+
+.grid-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-grid-overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.section-content {
+    position: relative;
+    z-index: 2;
+    min-height: 100px;
+    padding: 10px; /* Внутренний отступ секции */
+}
+
+/* Контейнер для горизонтального скролла */
+.section-content-container {
+    scrollbar-width: thin;
+    scrollbar-color: #3498db #f0f0f0;
+}
+
+.section-content-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.section-content-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.section-content-container::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 3px;
+}
+
+/* Components Panel - добавляем скролл */
+.components-panel {
+    width: 320px;
+    background: white;
+    padding: 20px;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto; /* Добавляем скролл */
+    max-height: calc(100vh - 80px);
+}
+
+/* Увеличиваем диапазон отступов */
+.config-group input[type="range"] {
+    flex: 1;
+    margin: 0 10px;
+    max-width: 120px;
+}
+
+.config-group input[type="number"] {
+    width: 50px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Убираем выбор типа сетки - оставляем только матрицу */
+.grid-type-selector {
+    display: none; /* Скрываем выбор типа, оставляем только матрицу */
+}
+
+.grid-config {
+    display: grid;
+    gap: 12px;
+}
+
+.config-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.config-group label {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 14px;
+}
+ 
+/* Секции - упрощаем до чистой разметки */
+.grid-section {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-height: 150px; /* Увеличиваем минимальную высоту */
+}
+
+.grid-section.active {
+    border-color: #3498db;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+/* Убираем контент секции - оставляем только сетку */
+.section-content {
+    display: none; /* Скрываем надписи */
+}
+
+/* Увеличиваем стандартную высоту секций */
+.grid-section {
+    height: 180px; /* Стандартная высота больше */
+}
+
+/* Сетка становится более заметной */
+.grid-cell {
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #3498db;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.grid-cell:hover {
+    background: rgba(52, 152, 219, 0.2);
+    transform: scale(1.02);
+}
+
+.grid-cell.highlight {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: #2ecc71;
+}

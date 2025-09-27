@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDUI Mobile Builder</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/grid.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ШАПКА -->
+        <header class="app-header">
+            <h1>📱 SDUI Builder</h1>
+            <div class="screen-controls">
+                <select id="screenSize">
+                    <option value="375x667">iPhone 8 (375x667)</option>
+                    <option value="390x844">iPhone 12 (390x844)</option>
+                    <option value="414x896">iPhone 11 (414x896)</option>
+                </select>
+            </div>
+            <button id="exportBtn" class="btn btn-primary">Экспорт JSON</button>
+        </header>
+
+        <!-- ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ (3 КОЛОНКИ) -->
+        <div class="workspace three-column">
+            
+            <!-- ЛЕВАЯ КОЛОНКА - Секции и компоненты -->
+            <aside class="left-panel">
+                <!-- БЛОК СЕКЦИЙ -->
+                <div class="panel-section">
+                    <h3>📐 Секции</h3>
+                    <div class="section-controls">
+                        <button id="addSectionBtn" class="btn btn-secondary">+ Добавить секцию</button>
+                    </div>
+                    <div class="sections-list" id="sectionsList">
+                        <!-- Секции будут здесь с drag&drop -->
+                    </div>
+                </div>
+                
+                <!-- БЛОК КОМПОНЕНТОВ -->
+                <div class="panel-section">
+                    <h3>📦 Компоненты</h3>
+                    <div class="components-list" id="componentsList">
+                        <div class="component-item" data-type="button">🔘 Кнопка</div>
+                        <div class="component-item" data-type="text">📝 Текст</div>
+                        <div class="component-item" data-type="image">🖼️ Изображение</div>
+                        <div class="component-item" data-type="input">📥 Поле ввода</div>
+                        <div class="component-item" data-type="header">📰 Шапка</div>
+                        <div class="component-item" data-type="card">💳 Карточка</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА - Мобильный экран -->
+            <main class="mobile-preview">
+                <!-- КОНТЕЙНЕР ДЛЯ ЗУМА -->
+                <div class="mobile-frame-container" id="mobileFrameContainer">
+                    <div class="screen-size-info" id="screenSizeInfo">375 × 667</div>
+                    <!-- РАМКА ТЕЛЕФОНА -->
+                    <div class="mobile-frame" id="mobileFrame">
+                        <!-- ЭКРАН ТЕЛЕФОНА -->
+                        <div class="mobile-screen" id="mobileScreen">
+                            <!-- СЕТКА -->
+                            <div class="grid-overlay" id="gridOverlay"></div>
+                            <!-- ОБЛАСТЬ ДЛЯ КОМПОНЕНТОВ -->
+                            <div class="components-area" id="componentsArea"></div>
+                            <!-- ИНДИКАТОР СКРОЛЛА -->
+                            <div class="scroll-indicator" id="scrollIndicator">Scroll: 0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- КНОПКИ УПРАВЛЕНИЯ ЗУМОМ -->
+                <div class="preview-controls">
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="zoomManager.zoomOut()">−</button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" onclick="zoomManager.zoomIn()">+</button>
+                    </div>
+                    <button class="zoom-btn" onclick="zoomManager.resetZoom()">⟲</button>
+                </div>
+            </main>
+
+            <!-- ПРАВАЯ КОЛОНКА - Настройки -->
+            <aside class="right-panel">
+                <!-- НАСТРОЙКИ СЕКЦИИ -->
+                <div class="panel-section" id="sectionSettings">
+                    <h3>⚙️ Настройки секции</h3>
+                    <div class="settings-content">
+                        <div class="setting-group">
+                            <label>Колонки:</label>
+                            <input type="number" id="gridColumns" min="1" max="10" value="1" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Ряды:</label>
+                            <input type="number" id="gridRows" min="1" max="10" value="1" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Высота секции (px):</label>
+                            <input type="number" id="sectionHeight" min="50" max="1000" value="120" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Отступ сверху (px):</label>
+                            <input type="number" id="marginTop" min="0" max="100" value="10" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Отступ снизу (px):</label>
+                            <input type="number" id="marginBottom" min="0" max="100" value="10" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Внутр. отступ (px):</label>
+                            <input type="number" id="sectionPadding" min="0" max="50" value="10" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Отступ между ячейками (px):</label>
+                            <input type="number" id="gridGap" min="0" max="50" value="8" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Отступ слева (px):</label>
+                            <input type="number" id="marginLeft" min="0" max="50" value="15" class="setting-input">
+                        </div>
+                        <div class="setting-group">
+                            <label>Отступ справа (px):</label>
+                            <input type="number" id="marginRight" min="0" max="50" value="15" class="setting-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- НАСТРОЙКИ КОМПОНЕНТА (скрыто по умолчанию) -->
+                <div class="panel-section" id="componentSettings" style="display: none;">
+                    <h3>⚙️ Настройки компонента</h3>
+                    <div class="settings-content">
+                        <!-- Настройки компонента будут здесь -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ПОДКЛЮЧЕНИЕ JavaScript -->
+    <script src="js/utils.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/sections.js"></script>
+    <script src="js/drag-drop.js"></script>
+    <script src="js/zoom-manager.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
