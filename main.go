@@ -9,8 +9,14 @@ import (
 )
 
 type UserRegLog struct {
-	Email    string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserSave struct {
+	Email   string          `json:"email"`
+	Save    json.RawMessage `json:"save"`
+	Actions string          `json:"actions"`
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +50,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		w.Header().Set("Content-Type", "application/json")
@@ -70,7 +77,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"status":  "success",
 				"message": "Пользователь зарегистрирован",
-				"email":   userReq.Email, // ← возвращаем email
+				"email":   userReq.Email,
 			})
 		}
 	}
@@ -84,32 +91,48 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		body, err := io.ReadAll(r.Body)
-
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
-		var userReq UserRegLog
-		err = json.Unmarshal(body, &userReq)
+
+		var userSave UserSave
+		err = json.Unmarshal(body, &userSave)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
 			return
 		}
-		save := pg.ReadJsonDb(userReq.Email)
-		if save == "" {
-			w.WriteHeader(http.StatusNotFound)
-		} else {
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status": "success",
-				"save":   save,
-			})
+		switch userSave.Actions {
+		case "save":
+
+			saveData := string(userSave.Save)
+			pg.WriteJsonDb(saveData, userSave.Email)
+
+			json.NewEncoder(w).Encode(map[string]string{"status": "saved"})
+
+		case "read", "":
+			save := pg.ReadJsonDb(userSave.Email)
+			if save == "" {
+				w.WriteHeader(http.StatusNotFound)
+				json.NewEncoder(w).Encode(map[string]string{"error": "Нет данных"})
+			} else {
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status": "success",
+					"save":   save,
+				})
+			}
+
+		default:
+			http.Error(w, "Unknown action", http.StatusBadRequest)
 		}
 	}
 }
+
 func adminpanelHandler(w http.ResponseWriter, r *http.Request) {
 
 }
+
 func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/register", registerHandler)

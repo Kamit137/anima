@@ -2,6 +2,7 @@ package pgsql
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 )
@@ -47,7 +48,7 @@ func Login(email, password string) string {
 	return "ok"
 }
 
-func WriteJsonDb(jsonData *sql.DB, email string) {
+func WriteJsonDb(jsonData json.RawMessage, email string) {
 	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
 	if err != nil {
 		fmt.Println("err", err)
