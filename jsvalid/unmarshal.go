@@ -1,7 +1,7 @@
 package jsvalid
 
 import (
-	pg "anima/sql"
+	pg "anima/pgsql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -561,3 +561,4 @@ func main() {
 	fmt.Println("Server starting on :8080")
 	http.ListenAndServe(":8080", nil)
 }
+
