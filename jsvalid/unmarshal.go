@@ -1,15 +1,10 @@
 package jsvalid
 
 import (
-	pg "anima/pgsql"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 )
-
-// ==================== Существующие структуры ====================
 
 type UserRegLog struct {
 	Email    string `json:"email"`
@@ -21,24 +16,18 @@ type UserSave struct {
 	Save    json.RawMessage `json:"save"`
 	Actions string          `json:"actions"`
 }
-
-// ==================== Структуры для валидации JSON ====================
-
 type Margin struct {
 	Top    int `json:"top" validate:"min=0"`
 	Bottom int `json:"bottom" validate:"min=0"`
 }
-
 type Padding struct {
 	Vertical   int `json:"vertical" validate:"min=0"`
 	Horizontal int `json:"horizontal" validate:"min=0"`
 }
-
 type Action struct {
 	Type   string `json:"type" validate:"required,oneof=navigate submit close"`
 	Target string `json:"target,omitempty"`
 }
-
 type Style struct {
 	FontSize        int      `json:"font_size,omitempty" validate:"min=8,max=72"`
 	FontWeight      string   `json:"font_weight,omitempty" validate:"omitempty,oneof=normal bold bolder lighter"`
@@ -50,7 +39,6 @@ type Style struct {
 	BorderRadius    int      `json:"border_radius,omitempty" validate:"min=0,max=50"`
 	Padding         *Padding `json:"padding,omitempty"`
 }
-
 type ColorTheme struct {
 	ThemeID    string `json:"theme_id" validate:"required"`
 	Primary    string `json:"primary" validate:"required,hexcolor"`
@@ -60,7 +48,6 @@ type ColorTheme struct {
 	Background string `json:"background" validate:"required,hexcolor"`
 	Surface    string `json:"surface" validate:"required,hexcolor"`
 }
-
 type ButtonStyle struct {
 	StyleID           string `json:"style_id" validate:"required"`
 	Type              string `json:"type" validate:"required,oneof=button_style"`
@@ -72,14 +59,12 @@ type ButtonStyle struct {
 	FontSize          int    `json:"font_size" validate:"min=8,max=72"`
 	FontWeight        string `json:"font_weight" validate:"required,oneof=normal bold bolder lighter"`
 }
-
 type TextComponent struct {
 	Type    string `json:"type" validate:"required,oneof=text"`
 	ID      string `json:"id" validate:"required"`
 	Content string `json:"content" validate:"required"`
 	Style   *Style `json:"style,omitempty"`
 }
-
 type ButtonComponent struct {
 	Type   string `json:"type" validate:"required,oneof=button"`
 	ID     string `json:"id" validate:"required"`
@@ -192,14 +177,10 @@ type Screen struct {
 	Version  string `json:"version" validate:"required"`
 	Layout   Layout `json:"layout" validate:"required"`
 }
-
-// ==================== Валидация ====================
-
 type ComponentType struct {
 	Type string `json:"type"`
 }
 
-// ValidateJSON проверяет и валидирует входящий JSON
 func ValidateJSON(jsonData string) (bool, string, error) {
 	var base ComponentType
 	if err := json.Unmarshal([]byte(jsonData), &base); err != nil {
@@ -282,8 +263,6 @@ func ValidateJSON(jsonData string) (bool, string, error) {
 
 	return true, string(validatedJSON), nil
 }
-
-// Функции валидации для каждого типа компонентов
 func validateTextComponent(comp TextComponent) error {
 	if strings.TrimSpace(comp.ID) == "" {
 		return fmt.Errorf("text component ID is required")
@@ -396,169 +375,3 @@ func isHexColor(color string) bool {
 	}
 	return true
 }
-
-// ==================== Обновленный homeHandler ====================
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
-			return
-		}
-		defer r.Body.Close()
-
-		var userSave UserSave
-		err = json.Unmarshal(body, &userSave)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
-			return
-		}
-
-		switch userSave.Actions {
-		case "save":
-			// Валидация JSON перед сохранением
-			saveData := string(userSave.Save)
-			isValid, validatedJSON, validationErr := ValidateJSON(saveData)
-
-			if !isValid {
-				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status":  "error",
-					"message": "Invalid JSON structure",
-					"error":   validationErr.Error(),
-				})
-				return
-			}
-
-			// Сохраняем валидированный JSON
-			pg.WriteJsonDb(validatedJSON, userSave.Email)
-
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status":  "saved",
-				"message": "Data validated and saved successfully",
-			})
-
-		case "read", "":
-			save := pg.ReadJsonDb(userSave.Email)
-			if save == "" {
-				w.WriteHeader(http.StatusNotFound)
-				json.NewEncoder(w).Encode(map[string]string{"error": "Нет данных"})
-			} else {
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status": "success",
-					"save":   save,
-				})
-			}
-
-		case "validate":
-			// Новая опция - только валидация без сохранения
-			saveData := string(userSave.Save)
-			isValid, validatedJSON, validationErr := ValidateJSON(saveData)
-
-			if !isValid {
-				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status":  "error",
-					"message": "Validation failed",
-					"error":   validationErr.Error(),
-				})
-			} else {
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status":         "success",
-					"message":        "JSON is valid",
-					"validated_data": validatedJSON,
-				})
-			}
-
-		default:
-			http.Error(w, "Unknown action", http.StatusBadRequest)
-		}
-	}
-}
-
-// ==================== Остальные обработчики без изменений ====================
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
-			return
-		}
-		defer r.Body.Close()
-		var userReq UserRegLog
-		err = json.Unmarshal(body, &userReq)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
-			return
-		}
-		retValue := pg.Login(userReq.Email, userReq.Password)
-		if retValue == "bad password" {
-			w.WriteHeader(http.StatusUnauthorized)
-		} else if retValue == "ok" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status":  "success",
-				"message": "Пользователь вошёл",
-				"email":   userReq.Email,
-			})
-		}
-	}
-}
-
-func registerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
-			return
-		}
-		defer r.Body.Close()
-		var userReq UserRegLog
-		err = json.Unmarshal(body, &userReq)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
-			return
-		}
-		retValue := pg.Reg(userReq.Email, userReq.Password)
-		if retValue == "email already in db" {
-			w.WriteHeader(http.StatusUnauthorized)
-		} else if retValue == "ok" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status":  "success",
-				"message": "Пользователь зарегистрирован",
-				"email":   userReq.Email,
-			})
-		}
-	}
-}
-
-func adminpanelHandler(w http.ResponseWriter, r *http.Request) {
-	// Ваша реализация админ-панели
-}
-
-func main() {
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/adminpanel", adminpanelHandler)
-
-	fmt.Println("Server starting on :8080")
-	http.ListenAndServe(":8080", nil)
-}
-

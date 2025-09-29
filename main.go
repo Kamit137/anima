@@ -1,6 +1,7 @@
 package main
 
 import (
+	valid "anima/jsvalid"
 	pg "anima/sql"
 	"encoding/json"
 	"fmt"
@@ -103,13 +104,28 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
 			return
 		}
+
 		switch userSave.Actions {
 		case "save":
 
 			saveData := string(userSave.Save)
-			pg.WriteJsonDb(saveData, userSave.Email)
+			isValid, validatedJSON, validationErr := valid.ValidateJSON(saveData)
 
-			json.NewEncoder(w).Encode(map[string]string{"status": "saved"})
+			if !isValid {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status":  "error",
+					"message": "Invalid JSON structure",
+					"error":   validationErr.Error(),
+				})
+				return
+			}
+			pg.WriteJsonDb(validatedJSON, userSave.Email)
+
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"status":  "saved",
+				"message": "Data validated and saved successfully",
+			})
 
 		case "read", "":
 			save := pg.ReadJsonDb(userSave.Email)
@@ -123,21 +139,36 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 
+		case "validate":
+
+			saveData := string(userSave.Save)
+			isValid, validatedJSON, validationErr := valid.ValidateJSON(saveData)
+
+			if !isValid {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status":  "error",
+					"message": "Validation failed",
+					"error":   validationErr.Error(),
+				})
+			} else {
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status":         "success",
+					"message":        "JSON is valid",
+					"validated_data": validatedJSON,
+				})
+			}
+
 		default:
 			http.Error(w, "Unknown action", http.StatusBadRequest)
 		}
 	}
 }
 
-func adminpanelHandler(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/adminpanel", adminpanelHandler)
 
 	http.ListenAndServe(":8080", nil)
 }
