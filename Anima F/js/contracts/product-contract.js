@@ -1,5 +1,15 @@
 const ProductContract = {
     toContract: function(element, index) {
+        // Заглушки для товаров
+        const mockProducts = [
+            { id: 'prod_1', name: 'Смартфон', price: '29 990 ₽' },
+            { id: 'prod_2', name: 'Наушники', price: '4 990 ₽' },
+            { id: 'prod_3', name: 'Ноутбук', price: '89 990 ₽' },
+            { id: 'prod_4', name: 'Часы', price: '14 990 ₽' }
+        ];
+        
+        const product = mockProducts[index % mockProducts.length];
+        
         return {
             type: 'product_card',
             position: {
@@ -11,36 +21,25 @@ const ProductContract = {
                 height: element.height || '140px'
             },
             properties: {
-                title: element.data?.productName || 'Название товара',
-                price: element.data?.productPrice || '0 ₽',
-                description: element.data?.productId ? `ID: ${element.data.productId}` : 'Описание товара',
-                productId: element.data?.productId || null, // ID товара в БД
+                title: element.data?.productName || product.name,
+                price: element.data?.productPrice || product.price,
+                description: element.data?.productId ? `ID: ${element.data.productId}` : 'Популярный товар',
+                productId: element.data?.productId || product.id,
                 buttonText: 'Купить'
             },
             metadata: {
                 element_id: `product_${index}`,
-                requires_product_data: !!element.data?.productId
-            },
-            resources: {
-                product_api: element.data?.productId ? `/api/products/${element.data.productId}` : null,
-                image_api: element.data?.productId ? `/api/products/${element.data.productId}/image` : null
+                is_mock_data: !element.data?.productId
             }
         };
     },
 
     fromContract: function(contract, elementDiv) {
-        // Бэкенд загрузит данные товара по productId
-        if (contract.properties.productId) {
-            console.log('Загружаем данные товара:', contract.properties.productId);
-        }
+        console.log(`Карточка товара: ${contract.properties.title}`);
         return elementDiv;
     },
 
     validate: function(contract) {
-        const errors = [];
-        if (contract.properties.productId && !contract.properties.productId.startsWith('prod_')) {
-            errors.push('ID товара должен начинаться с prod_');
-        }
-        return errors;
+        return []; // Упрощаем валидацию
     }
 };
