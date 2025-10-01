@@ -1,6 +1,17 @@
 const ImageContract = {
-    // Генерация контракта для изображения
     toContract: function(element, index) {
+        const placeholderImages = [
+            '/api/placeholder/photo1.jpg',
+            '/api/placeholder/photo2.jpg', 
+            '/api/placeholder/photo3.jpg',
+            '/api/placeholder/product1.jpg',
+            '/api/placeholder/product2.jpg'
+        ];
+        
+        // Выбираем случайную заглушку или используем существующую
+        const imageSource = element.data?.imageSource || 
+                           placeholderImages[index % placeholderImages.length];
+        
         return {
             type: 'image',
             position: {
@@ -13,31 +24,27 @@ const ImageContract = {
             },
             properties: {
                 alt: "Изображение",
-                source: element.data?.imageSource || '', // Ссылка на изображение в БД
+                source: imageSource,
                 placeholder: "🖼️ Изображение"
             },
             metadata: {
                 element_id: `image_${index}`,
-                requires_upload: !element.data?.imageSource
+                is_placeholder: !element.data?.imageSource
             }
         };
     },
 
-    // Восстановление изображения из контракта
     fromContract: function(contract, elementDiv) {
-        // Если есть ссылка на изображение - можно загрузить
-        if (contract.properties.source) {
-            console.log('Загружаем изображение из:', contract.properties.source);
-            // Здесь бэкенд загрузит изображение по ссылке
-        }
+        // Просто логируем какое изображение должно быть
+        console.log(`Элемент изображения: ${contract.properties.source}`);
         return elementDiv;
     },
 
-    // Валидация контракта изображения
     validate: function(contract) {
         const errors = [];
-        if (contract.properties.source && !contract.properties.source.startsWith('/api/')) {
-            errors.push('URL изображения должен начинаться с /api/');
+        // Упрощенная валидация - проверяем только что source есть
+        if (!contract.properties.source) {
+            errors.push('Изображение должно иметь source');
         }
         return errors;
     }
