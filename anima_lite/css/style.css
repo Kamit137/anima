@@ -1,0 +1,110 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.admin-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.actions {
+    padding: 30px;
+    background: #ecf0f1;
+    text-align: center;
+    border-top: 1px solid #bdc3c7;
+}
+
+.json-preview {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Добавляем в конец файла */
+
+.json-key {
+    color: #905;
+}
+
+.json-string {
+    color: #690;
+}
+
+.json-boolean {
+    color: #07a;
+}
+
+.json-template {
+    color: #e74c3c;
+    font-weight: bold;
+    background: #fff3f3;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.json-preview {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    line-height: 1.4;
+}
+
+/* Добавляем в конец файла */
+
+.json-key {
+    color: #905;
+    font-weight: 600;
+}
+
+.json-string {
+    color: #690;
+}
+
+.json-boolean {
+    color: #07a;
+    font-weight: 600;
+}
+
+.json-number {
+    color: #dd4a68;
+    font-weight: 600;
+}
+
+.json-preview {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+    line-height: 1.4;
+    font-size: 14px;
+}

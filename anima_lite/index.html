@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор интерфейса</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components/header.css">
+    <link rel="stylesheet" href="css/components/controls.css">
+    <link rel="stylesheet" href="css/components/toggle.css">
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/tabs.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧩 Конструктор интерфейса</h1>
+            <p>Настройте отображение корзины и чекаута в мобильной версии</p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="cart">🛒 Корзина</button>
+            <button class="tab-button" data-tab="checkout">💳 Чекаут</button>
+        </div>
+
+        <!-- Cart Tab -->
+        <div class="tab-content active" id="cart-tab">
+            <div class="controls" id="cartControlsContainer">
+                <!-- Cart controls will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Checkout Tab -->
+        <div class="tab-content" id="checkout-tab">
+            <div class="controls" id="checkoutControlsContainer">
+                <!-- Checkout controls will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-primary" onclick="app.saveCurrentSettings()">
+                💾 Сохранить настройки
+            </button>
+            <button class="btn btn-secondary" onclick="app.resetCurrentSettings()">
+                🔄 Сбросить
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="config/default-settings.js"></script>
+    <script src="config/checkout-settings.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/tabs-manager.js"></script>
+    <script src="js/cart-settings-manager.js"></script>
+    <script src="js/checkout-settings-manager.js"></script>
+    <script src="js/checkout-form-handler.js"></script>
+    <script src="js/cart-form-handler.js"></script>
+</body>
+</html>

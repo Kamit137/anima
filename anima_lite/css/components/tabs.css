@@ -1,0 +1,37 @@
+.tabs {
+    display: flex;
+    background: #34495e;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 20px;
+    background: none;
+    border: none;
+    color: #bdc3c7;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+    background: #3d566e;
+    color: white;
+}
+
+.tab-button.active {
+    color: white;
+    border-bottom-color: #3498db;
+    background: #3d566e;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
