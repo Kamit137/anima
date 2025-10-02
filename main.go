@@ -1,91 +1,127 @@
 package main
 
 import (
-	valid "anima/jsvalid"
-	pg "anima/sql"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
+    "html/template"
+    valid "anima/jsvalid"
+    pg "anima/sql"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+    _ "github.com/lib/pq"
 )
-
+type Response struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
 type UserRegLog struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+    Email    string `json:"email"`
+    Password string `json:"password"`
 }
 
 type UserSave struct {
-	Email   string          `json:"email"`
-	Save    json.RawMessage `json:"save"`
-	Actions string          `json:"actions"`
+    Email   string          `json:"email"`
+    Save    json.RawMessage `json:"save"`
+    Actions string          `json:"actions"`
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    if r.Method == "OPTIONS" {
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+        w.WriteHeader(http.StatusOK)
+        return
+    }
 
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
-			return
-		}
-		defer r.Body.Close()
-		var userReq UserRegLog
-		err = json.Unmarshal(body, &userReq)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
-			return
-		}
-		retValue := pg.Login(userReq.Email, userReq.Password)
-		if retValue == "bad password" {
-			w.WriteHeader(http.StatusUnauthorized)
-		} else if retValue == "ok" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status":  "success",
-				"message": "Пользователь вошёл",
-				"email":   userReq.Email,
-			})
-		}
+    if r.Method == "POST" {
+        w.Header().Set("Content-Type", "application/json")
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+
+        body, err := io.ReadAll(r.Body)
+        if err != nil {
+            http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
+            return
+        }
+        defer r.Body.Close()
+
+        var userReq UserRegLog
+        err = json.Unmarshal(body, &userReq)
+        if err != nil {
+            http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
+            return
+        }
+
+        retValue := pg.Login(userReq.Email, userReq.Password)
+        w.Header().Set("Content-Type", "application/json")
+	if retValue == "ok" {
+		json.NewEncoder(w).Encode(Response{Success: true, Message: "Login successful"})
+	} else {
+		json.NewEncoder(w).Encode(Response{Success: false, Message: retValue})
 	}
-}
+        }
+    }
+
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    if r.Method == "OPTIONS" {
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+        w.WriteHeader(http.StatusOK)
+        return
+    }
 
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
-			return
-		}
-		defer r.Body.Close()
-		var userReq UserRegLog
-		err = json.Unmarshal(body, &userReq)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
-			return
-		}
-		retValue := pg.Reg(userReq.Email, userReq.Password)
-		if retValue == "email already in db" {
-			w.WriteHeader(http.StatusUnauthorized)
-		} else if retValue == "ok" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status":  "success",
-				"message": "Пользователь зарегистрирован",
-				"email":   userReq.Email,
-			})
-		}
+    if r.Method == "GET" {
+        tmpl, err := template.ParseFiles("AnimaF/admin.html")
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+        tmpl.Execute(w, nil)
+        return
+    }
+
+    if r.Method == "POST" {
+        w.Header().Set("Content-Type", "application/json")
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+
+        body, err := io.ReadAll(r.Body)
+        if err != nil {
+            http.Error(w, fmt.Sprintf("Error reading body: %v", err), http.StatusBadRequest)
+            return
+        }
+        defer r.Body.Close()
+
+        var userReq UserRegLog
+        err = json.Unmarshal(body, &userReq)
+        if err != nil {
+            http.Error(w, fmt.Sprintf("Error unmarshalling body: %v", err), http.StatusBadRequest)
+            return
+        }
+
+        retValue := pg.Reg(userReq.Email, userReq.Password)
+        w.Header().Set("Content-Type", "application/json")
+        if retValue == "ok" {
+		json.NewEncoder(w).Encode(Response{Success: true, Message: "Registration successful"})
+	} else {
+		json.NewEncoder(w).Encode(Response{Success: false, Message: retValue})
 	}
 }
+        }
+
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+
+	 if r.Method == "OPTIONS" {
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+        w.WriteHeader(http.StatusOK)
+        return
+    }
 	if r.Method == "POST" {
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
@@ -163,12 +199,30 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unknown action", http.StatusBadRequest)
 		}
 	}
+	tmpl, err := template.ParseFiles("AnimaF/index.html")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    tmpl.Execute(w, nil)
+
 }
 
 func main() {
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/", homeHandler)
+    http.Handle("/AnimaF/",
+        http.StripPrefix("/AnimaF/",
+            http.FileServer(http.Dir("AnimaF"))))
+    http.Handle("/css/",
+        http.StripPrefix("/css/",
+            http.FileServer(http.Dir("AnimaF/css"))))
+    http.Handle("/js/",
+        http.StripPrefix("/js/",
+            http.FileServer(http.Dir("AnimaF/js"))))
 
-	http.ListenAndServe(":8080", nil)
+    http.HandleFunc("/login", loginHandler)
+    http.HandleFunc("/register", registerHandler)
+    http.HandleFunc("/", homeHandler)
+
+
+    http.ListenAndServe(":8081", nil)
 }

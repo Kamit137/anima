@@ -1,0 +1,105 @@
+.elements-panel {
+    background: linear-gradient(135deg, #434343 0%, #000000 100%);
+    color: white;
+    padding: 10px;
+    display: flex;
+    overflow-x: auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.element {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 0 5px;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.element:hover {
+    transform: translateY(-3px);
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.screens-panel {
+    width: 200px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.screens-header {
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    color: #6a11cb;
+}
+
+.screen-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.screen-item:hover {
+    background-color: #eef7ff;
+}
+
+.screen-item.active {
+    background-color: #e1f0ff;
+    border-left: 3px solid #6a11cb;
+}
+
+.screen-item::before {
+    content: "📱";
+    margin-right: 8px;
+}
+
+.delete-screen {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ff6b6b;
+    font-size: 16px;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.delete-screen:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+}
+
+.add-screen {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #6a11cb;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-screen::before {
+    content: "+";
+    margin-right: 5px;
+    font-weight: bold;
+}

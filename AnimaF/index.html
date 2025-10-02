@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimaConstruct - Конструктор мобильных приложений</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/components/header.css">
+    <link rel="stylesheet" href="css/components/panels.css">
+    <link rel="stylesheet" href="css/components/workspace.css">
+    <link rel="stylesheet" href="css/components/elements.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">AnimaConstruct</div>
+        <div class="controls">
+            <button class="btn-secondary" id="saveBtn">Сохранить</button>
+            <button class="btn-secondary" id="previewBtn">Предпросмотр</button>
+            <button class="btn-primary" id="exportBtn">Экспортировать</button>
+        </div>
+    </header>
+
+    <div class="elements-panel" id="elementsPanel"></div>
+
+    <div class="workspace-container">
+        <div class="screens-panel">
+            <div class="screens-header">Экраны приложения</div>
+            <div id="screensList"></div>
+            <button class="add-screen" id="addScreenBtn">Добавить экран</button>
+        </div>
+    
+        <div class="workspace">
+            <div class="phone-screen-container">
+                <div class="phone-screen">
+                    <div class="app-canvas" id="appCanvas">
+                        <div class="welcome-message">Перетащите элементы с панели выше</div>
+                    </div>
+                </div>
+                <div class="navigation-panel" id="navigationPanel"></div>
+            </div>
+        </div>
+    
+        <!-- ПАНЕЛЬ НАСТРОЙКИ СЕТКИ -->
+        <div class="grid-settings-panel">
+            <div class="grid-settings-header">
+                <span class="grid-icon">⛁</span>
+                Настройки сетки
+            </div>
+            <div class="grid-controls">
+                <div class="grid-control-group">
+                    <label class="grid-label">Столбцы</label>
+                    <input type="number" class="grid-input" id="gridCols" min="2" max="12" value="4">
+                </div>
+                <div class="grid-control-group">
+                    <label class="grid-label">Строки</label>
+                    <input type="number" class="grid-input" id="gridRows" min="2" max="20" value="8">
+                </div>
+                <div class="grid-buttons">
+                    <button class="grid-btn grid-btn-apply" id="applyGrid">
+                        <span>✓</span> Применить
+                    </button>
+                    <button class="grid-btn grid-btn-toggle" id="toggleGrid">
+                        <span>👁️</span> Скрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="edit-panel" id="editPanel">
+            <div class="edit-panel-header">Редактирование элемента</div>
+            <div id="editContent">
+                <div class="no-element">Выберите элемент для редактирования</div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        Конструктор мобильных приложений AnimaConstruct © 2025
+    </footer>
+
+    <div class="element-preview" id="elementPreview"></div>
+
+    <!-- SCRIPTS - ВАЖЕН ПОРЯДОК! -->
+    
+    <!-- 1. Утилиты и базовые менеджеры -->
+    <!-- CSS -->
+<link rel="stylesheet" href="css/components/header.css">
+<link rel="stylesheet" href="css/components/panels.css">
+<link rel="stylesheet" href="css/components/workspace.css">
+<link rel="stylesheet" href="css/components/elements.css">
+<link rel="stylesheet" href="css/style.css">
+
+<!-- SCRIPTS (ВАЖЕН ПОРЯДОК!) -->
+<script src="js/utils/helpers.js"></script>
+<script src="js/utils/magnet-manager.js"></script>
+
+<script src="js/elements/base-element.js"></script>
+<script src="js/elements/button-element.js"></script>
+<script src="js/elements/text-element.js"></script>
+<script src="js/elements/image-element.js"></script>
+<script src="js/elements/checkbox-element.js"></script>
+<script src="js/elements/product-card-element.js"></script>    
+<script src="js/elements/cart-panel-element.js"></script> 
+<script src="js/elements/back-bar-element.js"></script>
+
+<script src="js/utils/registry.js"></script>
+
+<script src="js/managers/image-manager.js"></script>
+<script src="js/managers/product-gallery-manager.js"></script>
+
+<!-- Контракты -->
+<script src="js/contracts/text-contract.js"></script>
+<script src="js/contracts/button-contract.js"></script>
+<script src="js/contracts/image-contract.js"></script>
+<script src="js/contracts/checkbox-contract.js"></script>
+<script src="js/contracts/product-contract.js"></script>
+<script src="js/contracts/cart-contract.js"></script>
+<script src="js/contracts/backbar-contract.js"></script>
+<script src="js/contracts/contract-manager.js"></script>
+
+<script src="js/modules/elements.js"></script>
+<script src="js/modules/drag-drop.js"></script>
+<script src="js/modules/grid.js"></script>
+<script src="js/modules/editor.js"></script>
+<script src="js/modules/screens.js"></script>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>

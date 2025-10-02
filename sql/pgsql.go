@@ -7,7 +7,7 @@ import (
 )
 
 func Reg(email, password string) string {
-	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=db sslmode=disable")
 	if err != nil {
 		fmt.Println("err", err)
 	}
@@ -22,7 +22,7 @@ func Reg(email, password string) string {
 	if liveEmail {
 		return "email already in db"
 	}
-	_, err = db.Exec("INSERT INTO user (email, password) VALUES($1, $2)", email, password)
+	_, err = db.Exec("INSERT INTO users (email, password) VALUES($1, $2)", email, password)
 	if err != nil {
 		fmt.Println("err", err)
 	}
@@ -31,13 +31,13 @@ func Reg(email, password string) string {
 }
 
 func Login(email, password string) string {
-	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=db sslmode=disable")
 	if err != nil {
 		fmt.Println("err", err)
 	}
 	defer db.Close()
 	var dbpas string
-	err = db.QueryRow("SELECT password FROM user WHERE email=$1)", email).Scan(&dbpas)
+	err = db.QueryRow("SELECT password FROM users WHERE email=$1", email).Scan(&dbpas)
 	if err != nil {
 		fmt.Println("err", err)
 	}
@@ -48,7 +48,7 @@ func Login(email, password string) string {
 }
 
 func WriteJsonDb(jsonData string, email string) {
-	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=db sslmode=disable")
 	if err != nil {
 		fmt.Println("err", err)
 	}
@@ -62,7 +62,7 @@ func WriteJsonDb(jsonData string, email string) {
 }
 
 func ReadJsonDb(email string) string {
-	db, err := sql.Open("postgres", "user=kamit password=1234 dbname=db sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=db sslmode=disable")
 	if err != nil {
 		fmt.Println("err", err)
 	}
