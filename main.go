@@ -175,25 +175,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 
-		case "validate":
 
-			saveData := string(userSave.Save)
-			isValid, validatedJSON, validationErr := valid.ValidateJSON(saveData)
-
-			if !isValid {
-				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status":  "error",
-					"message": "Validation failed",
-					"error":   validationErr.Error(),
-				})
-			} else {
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status":         "success",
-					"message":        "JSON is valid",
-					"validated_data": validatedJSON,
-				})
-			}
 
 		default:
 			http.Error(w, "Unknown action", http.StatusBadRequest)
@@ -220,8 +202,8 @@ func main() {
             http.FileServer(http.Dir("AnimaF/js"))))
 
     http.HandleFunc("/login", loginHandler)
-    http.HandleFunc("/register", registerHandler)
-    http.HandleFunc("/", homeHandler)
+    http.HandleFunc("/admin", homeHandler)
+    http.HandleFunc("/", registerHandler)
 
 
     http.ListenAndServe(":8081", nil)
