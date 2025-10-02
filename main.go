@@ -4,6 +4,7 @@ import (
     "html/template"
     valid "anima/jsvalid"
     pg "anima/sql"
+
     "encoding/json"
     "fmt"
     "io"
@@ -145,18 +146,11 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		case "save":
 
 			saveData := string(userSave.Save)
-			isValid, validatedJSON, validationErr := valid.ValidateJSON(saveData)
 
-			if !isValid {
-				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"status":  "error",
-					"message": "Invalid JSON structure",
-					"error":   validationErr.Error(),
-				})
-				return
-			}
-			pg.WriteJsonDb(validatedJSON, userSave.Email)
+
+
+
+			pg.WriteJsonDb(saveData, userSave.Email)
 
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"status":  "saved",
@@ -204,7 +198,8 @@ func main() {
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/admin", homeHandler)
     http.HandleFunc("/", registerHandler)
-
+    http.HandleFunc("/screens/cart", valid.CartHandler)
+    http.HandleFunc("/screens/checkout", valid.CheckoutHandler)
 
     http.ListenAndServe(":8081", nil)
 }
