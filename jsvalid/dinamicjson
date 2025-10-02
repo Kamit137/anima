@@ -1,0 +1,200 @@
+package jsvalid
+
+import (
+	pg "anima/pgsql"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+type CartContainer struct {
+    GlobalSettings GlobalSettings `json:"globalSettings"`
+    Styling        Styling        `json:"styling"`
+    Shops          []Shop         `json:"shops"`
+}
+
+type GlobalSettings struct {
+    Orientation        string `json:"orientation"`
+    ShowRating         bool   `json:"showRating"`
+    DeliveryButtonStyle string `json:"deliveryButtonStyle"`
+}
+
+type Styling struct {
+    ProductHighlight ProductHighlight `json:"productHighlight"`
+    ShopHighlight    ShopHighlight    `json:"shopHighlight"`
+}
+
+type ProductHighlight struct {
+    HighlightBackground string `json:"highlightBackground"`
+    HighlightPriceColor string `json:"highlightPriceColor"`
+    HighlightBorderColor string `json:"highlightBorderColor"`
+    HighlightBorderWidth string `json:"highlightBorderWidth"`
+}
+
+type ShopHighlight struct {
+    ShopBackground  string `json:"shopBackground"`
+    ShopBorderColor string `json:"shopBorderColor"`
+    ShopBorderWidth string `json:"shopBorderWidth"`
+}
+
+type Shop struct {
+    ID                  string    `json:"id"`
+    StoreName           string    `json:"storeName"`
+    Promo               bool      `json:"promo"`
+    Percent             string    `json:"percent"`
+    Rating              string    `json:"rating"`
+    Background          string    `json:"background"`
+    ReviewsCount        string    `json:"reviewsCount"`
+    EnableShopHighlight bool      `json:"enableShopHighlight"`
+    EnableDeliveryButton bool     `json:"enableDeliveryButton"`
+    Products            []Product `json:"products"`
+}
+
+type Product struct {
+    ID             string `json:"id"`
+    Image          string `json:"image"`
+    Cost           string `json:"cost"`
+    Title          string `json:"title"`
+    EnableHighlight bool   `json:"enableHighlight"`
+}
+func populateWithRealData(templateData CartContainer) CartContainer {
+    result := templateData
+    
+    for i, shop := range result.Shops {
+        result.Shops[i] = fillShopData(shop)
+    }
+    
+    return result
+}
+
+func fillShopData(shopTemplate Shop) Shop {
+    shop := shopTemplate
+    
+    if shop.ID == "{{id}}" {
+        shop.ID = generateShopID()
+    }
+    if shop.StoreName == "{{storeName}}" {
+        shop.StoreName = getRealStoreName()
+    }
+    if shop.Percent == "{{percent}}" {
+        shop.Percent = calculateDiscount()
+    }
+    if shop.Rating == "{{rating}}" {
+        shop.Rating = getShopRating()
+    }
+    if shop.Background == "{{backgroundShop}}" {
+        shop.Background = getShopBackground()
+    }
+    if shop.ReviewsCount == "{{reviewsCount}}" {
+        shop.ReviewsCount = getReviewsCount()
+    }
+    
+    for j, product := range shop.Products {
+        shop.Products[j] = fillProductData(product)
+    }
+    
+    return shop
+}
+
+func fillProductData(productTemplate Product) Product {
+    product := productTemplate
+    
+    if product.ID == "{{id}}" {
+        product.ID = generateProductID()
+    }
+    if product.Image == "{{image}}" {
+        product.Image = getProductImage()
+    }
+    if product.Cost == "{{cost}}" {
+        product.Cost = getProductPrice()
+    }
+    if product.Title == "{{title}}" {
+        product.Title = getProductTitle()
+    }
+    
+    return product
+}
+func generateShopID() string {
+    return fmt.Sprintf("shop_%d", time.Now().Unix())
+}
+
+func getRealStoreName() string {
+    storeNames := []string{"Магазин А", "Супермаркет Б", "Торговый центр В"}
+    return storeNames[rand.Intn(len(storeNames))]
+}
+
+func calculateDiscount() string {
+    discounts := []string{"5%", "10%", "15%", "20%"}
+    return discounts[rand.Intn(len(discounts))]
+}
+
+func getShopRating() string {
+    return fmt.Sprintf("%.1f", 3.5 + rand.Float64()*1.5)
+}
+
+func getShopBackground() string {
+    colors := []string{"#FF5733", "#33FF57", "#3357FF", "#F333FF"}
+    return colors[rand.Intn(len(colors))]
+}
+
+func getReviewsCount() string {
+    return fmt.Sprintf("%d", rand.Intn(1000)+50)
+}
+
+func generateProductID() string {
+    return fmt.Sprintf("prod_%d", time.Now().Unix())
+}
+
+func getProductImage() string {
+    images := []string{
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg", 
+        "https://example.com/image3.jpg",
+    }
+    return images[rand.Intn(len(images))]
+}
+
+func getProductPrice() string {
+    return fmt.Sprintf("%d руб.", rand.Intn(5000)+100)
+}
+
+func getProductTitle() string {
+    titles := []string{
+        "Смартфон Samsung Galaxy",
+        "Ноутбук ASUS VivoBook",
+        "Наушники Sony WH-1000XM4",
+        "Часы Apple Watch",
+    }
+    return titles[rand.Intn(len(titles))]
+}
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != "POST" {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    var cartContainer CartContainer
+    err := json.NewDecoder(r.Body).Decode(&cartContainer)
+    if err != nil {
+        http.Error(w, "Invalid JSON", http.StatusBadRequest)
+        return
+    }
+
+
+    populatedData := populateWithRealData(cartContainer)
+
+    jsonData, err := json.Marshal(populatedData)
+    if err != nil {
+        http.Error(w, "Error processing data", http.StatusInternalServerError)
+        return
+    }
+
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "status": "success",
+        "data":   populatedData,
+    })
+}
