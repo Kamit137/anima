@@ -201,5 +201,5 @@ func main() {
     http.HandleFunc("/screens/cart", valid.CartHandler)
     http.HandleFunc("/screens/checkout", valid.CheckoutHandler)
 
-    http.ListenAndServe(":8081", nil)
+    http.ListenAndServe(":8080", nil)
 }
