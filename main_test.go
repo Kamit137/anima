@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// Добавляем структуры которые используются в тесте
 type CartContainer struct {
 	GlobalSettings GlobalSettings `json:"globalSettings"`
 	Styling        Styling        `json:"styling"`
@@ -59,9 +58,7 @@ type Product struct {
 	EnableHighlight bool   `json:"enableHighlight"`
 }
 
-// Вспомогательные функции для теста
 func populateWithRealData(templateData CartContainer) CartContainer {
-	// Простая заглушка для теста
 	result := templateData
 	if len(result.Shops) > 0 {
 		if result.Shops[0].ID == "{{id}}" {
@@ -138,7 +135,6 @@ func TestHomeHandlerSave(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	// Проверяем что ответ не 500 ошибка
 	if status := rr.Code; status == http.StatusInternalServerError {
 		t.Errorf("handler returned internal server error: %v", status)
 	}
